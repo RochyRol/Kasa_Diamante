@@ -77,7 +77,7 @@ function Nav({ scrolled, view }) {
       <header className={`kd-nav ${scrolled ? 'kd-nav--scrolled' : ''} ${isHome ? 'kd-nav--home' : ''}`}>
         <div className="kd-nav-inner">
           <a href="#" className="kd-logo" onClick={() => setMenuOpen(false)}>
-            <img src="/src/logo-kd.svg" alt="KD" className="kd-logo-img" />
+            <img src="/logo-kd.svg" alt="KD" className="kd-logo-img" />
             <span className="kd-logo-word">KASA DIAMANTE</span>
           </a>
           <nav className="kd-nav-links">
@@ -199,7 +199,7 @@ function PlanPage() {
   return (
     <>
       <PageHeader n="N° 03" eyebrow="Diseña tu hogar" title="El plano de tu casa," em="curado pieza por pieza"
-        lead="Toca cualquier elemento del plano para elegir la pieza Kasa Diamante que ocupará ese lugar. Tu selección se guarda en cada habitación."
+        lead="Elige cada pieza que ocupará tu hogar, habitación por habitación. Tu selección se guarda mientras navegas."
       />
       <FloorPlan />
     </>
@@ -291,7 +291,7 @@ export default function App() {
   return (
     <>
       <div className="kd-global-bg-logo" aria-hidden="true">
-        <img src="/src/logo-kd.svg" alt="" />
+        <img src="/logo-kd.svg" alt="" />
       </div>
       <Nav scrolled={scrolled} view={view} />
       {view === 'home' && <HomeBackground />}

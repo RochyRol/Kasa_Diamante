@@ -4,6 +4,18 @@ import { PlanIcon, IconView } from './furniture-svgs.jsx'
 
 function classNames(...xs) { return xs.filter(Boolean).join(' '); }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 760
+  );
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 760);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
+
 function ProductPickerSheet({ open, slot, room, onPick, onClear, onClose, selections }) {
   if (!open || !slot) return null;
   const products = KD_PRODUCTS.filter(p => p.cat === slot.cat);
@@ -189,6 +201,121 @@ function PlanArchitecture() {
   );
 }
 
+/* ── Mobile room planner ── */
+function MobileFloorPlan({ selections, onPick, onClear, onClearAll, openSlot, setOpenSlot }) {
+  const [activeRoomId, setActiveRoomId] = useState(KD_ROOMS[0].id);
+  const activeRoom = KD_ROOMS.find(r => r.id === activeRoomId) || KD_ROOMS[0];
+
+  const total = useMemo(() =>
+    Object.values(selections).reduce((s, pid) => {
+      const p = KD_PRODUCTS.find(x => x.id === pid);
+      return s + (p?.price || 0);
+    }, 0),
+    [selections]
+  );
+
+  const selectedCount = Object.keys(selections).length;
+
+  const ROOM_ICONS = {
+    sala:       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><rect x="2" y="10" width="20" height="10" rx="2"/><path d="M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/><path d="M2 15h20"/></svg>,
+    comedor:    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><rect x="4" y="6" width="16" height="2" rx="1"/><line x1="7" y1="8" x2="7" y2="18"/><line x1="12" y1="8" x2="12" y2="18"/><line x1="17" y1="8" x2="17" y2="18"/><line x1="2" y1="18" x2="22" y2="18"/></svg>,
+    recamara:   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><rect x="2" y="12" width="20" height="8" rx="2"/><path d="M2 14h20M7 12V9a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v3"/></svg>,
+    recamara2:  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M3 15h18M8 13v-3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3"/></svg>,
+  };
+
+  return (
+    <section className="kd-section kd-plan-section kd-plan-mobile" id="disena">
+      <div className="kd-section-head kd-reveal">
+        <div className="kd-eyebrow">Diseña tu hogar</div>
+        <h2 className="kd-h2">El plano de tu casa, <em>curado pieza por pieza</em></h2>
+        <p className="kd-lead">
+          Elige la habitación y selecciona cada pieza que ocupará ese espacio.
+        </p>
+      </div>
+
+      {/* Room tabs */}
+      <div className="kd-room-tabs">
+        {KD_ROOMS.map(r => (
+          <button
+            key={r.id}
+            className={`kd-room-tab ${activeRoomId === r.id ? 'kd-room-tab--active' : ''}`}
+            onClick={() => setActiveRoomId(r.id)}
+          >
+            <span className="kd-room-tab-icon">{ROOM_ICONS[r.id]}</span>
+            <span className="kd-room-tab-label">{r.label}</span>
+            <span className="kd-room-tab-area">{r.area}</span>
+            {r.slots.some(s => selections[s.id]) && (
+              <span className="kd-room-tab-badge">
+                {r.slots.filter(s => selections[s.id]).length}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Slot cards for active room */}
+      <div className="kd-slot-grid">
+        {activeRoom.slots.map(slot => {
+          const productId = selections[slot.id];
+          const product = productId ? KD_PRODUCTS.find(p => p.id === productId) : null;
+          return (
+            <button
+              key={slot.id}
+              className={`kd-slot-card ${productId ? 'kd-slot-card--filled' : ''}`}
+              onClick={() => setOpenSlot({ room: activeRoom, slot })}
+            >
+              <div className="kd-slot-card-icon">
+                <PlanIcon cat={slot.cat} />
+              </div>
+              <div className="kd-slot-card-body">
+                <div className="kd-slot-card-label">{slot.label}</div>
+                {product ? (
+                  <>
+                    <div className="kd-slot-card-product">{product.name}</div>
+                    <div className="kd-slot-card-price">{fmtCOP(product.price)}</div>
+                  </>
+                ) : (
+                  <div className="kd-slot-card-empty">Toca para elegir</div>
+                )}
+              </div>
+              <div className="kd-slot-card-action">
+                {productId
+                  ? <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="var(--gold)" strokeWidth="1"/><path d="M5 8l2 2 4-4" stroke="var(--gold)" strokeWidth="1.2" strokeLinecap="round"/></svg>
+                  : <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" strokeOpacity="0.35" strokeWidth="1"/><line x1="8" y1="5" x2="8" y2="11" stroke="currentColor" strokeOpacity="0.5" strokeWidth="1.2"/><line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" strokeOpacity="0.5" strokeWidth="1.2"/></svg>
+                }
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Bottom summary */}
+      {selectedCount > 0 && (
+        <div className="kd-plan-mobile-foot">
+          <div className="kd-plan-mobile-foot-info">
+            <span className="kd-plan-mobile-count">{selectedCount} pieza{selectedCount !== 1 ? 's' : ''}</span>
+            <span className="kd-plan-mobile-total">{fmtCOP(total)}</span>
+          </div>
+          <div className="kd-plan-mobile-foot-actions">
+            <button className="kd-btn-ghost kd-plan-mobile-clear" onClick={onClearAll}>Limpiar</button>
+            <button className="kd-btn-gold">Cotizar →</button>
+          </div>
+        </div>
+      )}
+
+      <ProductPickerSheet
+        open={!!openSlot}
+        slot={openSlot?.slot}
+        room={openSlot?.room}
+        selections={selections}
+        onPick={onPick}
+        onClear={onClear}
+        onClose={() => setOpenSlot(null)}
+      />
+    </section>
+  );
+}
+
 export function FloorPlan() {
   const [selections, setSelections] = useState(() => {
     try {
@@ -207,6 +334,7 @@ export function FloorPlan() {
   const [openSlot, setOpenSlot] = useState(null);
   const [hoveredSlot, setHoveredSlot] = useState(null);
   const planRef = useRef(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     try { localStorage.setItem('kd_selections', JSON.stringify(selections)); } catch (e) {}
@@ -220,6 +348,19 @@ export function FloorPlan() {
   };
   const handleClearAll = () => setSelections({});
   const handleJump = (room, slot) => setOpenSlot({ room, slot });
+
+  if (isMobile) {
+    return (
+      <MobileFloorPlan
+        selections={selections}
+        onPick={handlePick}
+        onClear={handleClear}
+        onClearAll={handleClearAll}
+        openSlot={openSlot}
+        setOpenSlot={setOpenSlot}
+      />
+    );
+  }
 
   return (
     <section className="kd-section kd-plan-section" id="disena">

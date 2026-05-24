@@ -4372,6 +4372,275 @@ body[data-view="home"] .kd-global-bg-logo img { opacity: 0.02; }
 }
 
 /* ============================================================
+   HOME STORY — MOBILE TAP NAVIGATION
+   ============================================================ */
+.kd-story-section--mobile {
+  height: 100dvh !important;
+  height: 100vh !important;
+  position: relative;
+}
+.kd-story-stage--mobile {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+.kd-story-stage--mobile .kd-story-scene-wrap {
+  width: 100%;
+  height: 52vh;
+  flex-shrink: 0;
+}
+.kd-story-stage--mobile .kd-story-cap {
+  position: relative !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  text-align: center;
+  padding: 0 28px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 100%;
+  animation: kd-cap-in-mobile 0.55s cubic-bezier(.2,.7,.2,1) !important;
+}
+@keyframes kd-cap-in-mobile {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.kd-story-stage--mobile .kd-story-cap-title {
+  font-size: clamp(22px, 7vw, 36px);
+  margin-bottom: 8px;
+}
+
+.kd-story-mobile-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 32px 24px;
+  width: 100%;
+}
+.kd-story-mobile-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.14);
+  color: var(--cream);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s;
+  flex-shrink: 0;
+}
+.kd-story-mobile-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.kd-story-mobile-btn:disabled { opacity: 0.25; cursor: default; }
+
+.kd-story-mobile-dots {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.kd-story-mobile-dots .kd-story-dot {
+  cursor: pointer;
+  width: 7px;
+  height: 7px;
+}
+
+/* ============================================================
+   FLOOR PLAN — MOBILE ROOM TABS
+   ============================================================ */
+.kd-plan-mobile { padding-bottom: 100px !important; }
+
+.kd-room-tabs {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 24px 4px;
+  margin: 0 -24px 32px;
+}
+.kd-room-tabs::-webkit-scrollbar { display: none; }
+
+.kd-room-tab {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 20px;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  color: var(--cream-2);
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s, background 0.25s;
+  position: relative;
+  min-width: 100px;
+}
+.kd-room-tab--active {
+  border-color: var(--gold);
+  color: var(--cream);
+  background: rgba(212,175,55,0.06);
+}
+.kd-room-tab-icon { opacity: 0.7; line-height: 0; }
+.kd-room-tab--active .kd-room-tab-icon { opacity: 1; color: var(--gold); }
+.kd-room-tab-label {
+  font-family: var(--mono-font);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.kd-room-tab-area {
+  font-family: var(--mono-font);
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+.kd-room-tab-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--gold);
+  color: #0a0908;
+  font-family: var(--mono-font);
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kd-slot-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 24px;
+  margin: 0 -24px;
+}
+
+.kd-slot-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  color: var(--cream);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.25s, background 0.25s;
+  width: 100%;
+}
+.kd-slot-card--filled {
+  border-color: rgba(212,175,55,0.4);
+  background: rgba(212,175,55,0.04);
+}
+.kd-slot-card:active { background: rgba(255,255,255,0.04); }
+
+.kd-slot-card-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hairline);
+  flex-shrink: 0;
+}
+.kd-slot-card-icon svg {
+  width: 28px;
+  height: 28px;
+}
+.kd-slot-card--filled .kd-slot-card-icon {
+  border-color: rgba(212,175,55,0.3);
+  background: rgba(212,175,55,0.08);
+}
+
+.kd-slot-card-body { flex: 1; min-width: 0; }
+.kd-slot-card-label {
+  font-family: var(--mono-font);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.kd-slot-card-product {
+  font-family: var(--display-font);
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.kd-slot-card-price {
+  font-family: var(--mono-font);
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+.kd-slot-card-empty {
+  font-family: var(--mono-font);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.kd-slot-card-action {
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.kd-plan-mobile-foot {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(8,8,8,0.96);
+  border-top: 1px solid var(--gold);
+  padding: 16px 24px 24px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  backdrop-filter: blur(20px);
+}
+.kd-plan-mobile-foot-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.kd-plan-mobile-count {
+  font-family: var(--mono-font);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.kd-plan-mobile-total {
+  font-family: var(--mono-font);
+  font-size: 15px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+.kd-plan-mobile-foot-actions {
+  display: flex;
+  gap: 10px;
+}
+.kd-plan-mobile-clear { flex-shrink: 0; }
+.kd-plan-mobile-foot-actions .kd-btn-gold { flex: 1; justify-content: center; }
+
+/* ============================================================
    NAV — HAMBURGER BUTTON
    ============================================================ */
 .kd-nav-burger {

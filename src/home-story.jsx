@@ -21,6 +21,18 @@ const PRODUCT_CARD_POSITIONS = {
   6: { top: '56%',    left: '36px',  side: 'left'  },
 };
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 760
+  );
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 760);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
+
 function Scene({ show }) {
   return (
     <svg viewBox="0 0 1400 900" className="kd-scene" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -217,8 +229,14 @@ function StoryProductCard({ stageIdx, currentIdx }) {
 export function HomeStory() {
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const [mobileIdx, setMobileIdx] = useState(0);
+  const isMobile = useIsMobile();
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
 
+  // Desktop: scroll-based progress
   useEffect(() => {
+    if (isMobile) return;
     const el = containerRef.current;
     if (!el) return;
     let raf = 0;
@@ -241,12 +259,14 @@ export function HomeStory() {
       window.removeEventListener('resize', onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [isMobile]);
 
-  const stageIdx = Math.min(
+  const scrollStageIdx = Math.min(
     STAGES.length - 1,
     Math.floor(progress * STAGES.length * 0.999)
   );
+
+  const stageIdx = isMobile ? mobileIdx : scrollStageIdx;
 
   const show = {
     room:    stageIdx >= 0,
@@ -257,6 +277,77 @@ export function HomeStory() {
     lamp:    stageIdx >= 5,
     frame:   stageIdx >= 6,
   };
+
+  const goNext = () => setMobileIdx(i => Math.min(STAGES.length - 1, i + 1));
+  const goPrev = () => setMobileIdx(i => Math.max(0, i - 1));
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const handleTouchEnd = (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
+    if (Math.abs(dx) > 44 && dy < 60) {
+      if (dx < 0) goNext();
+      else goPrev();
+    }
+  };
+
+  if (isMobile) {
+    return (
+      <section className="kd-story-section kd-story-section--mobile">
+        <div className="kd-story-stage kd-story-stage--mobile"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="kd-story-scene-wrap">
+            <Scene show={show} />
+          </div>
+
+          <Caption stage={STAGES[stageIdx]} idx={stageIdx} />
+
+          <nav className="kd-story-mobile-nav" aria-label="Historia">
+            <button
+              className="kd-story-mobile-btn"
+              onClick={goPrev}
+              disabled={mobileIdx === 0}
+              aria-label="Anterior"
+            >
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <path d="M17 6H1M6 1L1 6L6 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+              </svg>
+            </button>
+
+            <div className="kd-story-mobile-dots">
+              {STAGES.map((_, i) => (
+                <button
+                  key={i}
+                  className={'kd-story-dot ' + (
+                    i === mobileIdx ? 'kd-story-dot--active' :
+                    i < mobileIdx  ? 'kd-story-dot--done'   : ''
+                  )}
+                  onClick={() => setMobileIdx(i)}
+                  aria-label={`Ir a escena ${i + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              className="kd-story-mobile-btn"
+              onClick={goNext}
+              disabled={mobileIdx === STAGES.length - 1}
+              aria-label="Siguiente"
+            >
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <path d="M1 6H17M12 1L17 6L12 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
